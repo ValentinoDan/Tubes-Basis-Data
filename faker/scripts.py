@@ -43,7 +43,7 @@ team_name_provider = DynamicProvider(
     "Arzani-Volpini",
     "Aston Butterworth",
     "Automobili Turismo e Sport",
-    "Auto Technisches Spezialzubehör",
+    "Auto Technisches Spezialzubehor",
     "British American Racing",
     "Behra-Porsche",
     "Bellasi",
@@ -172,14 +172,14 @@ circuit_name_provider = DynamicProvider(
     "Aintree Motor Racing Circuit",
     "Albert Park Circuit",
     "Algarve International Circuit",
-    "Autódromo do Estoril",
-    "Autódromo Hermanos Rodríguez",
-    "Autódromo Internacional Nelson Piquet",
+    "Autodromo do Estoril",
+    "Autodromo Hermanos Rodriguez",
+    "Autodromo Internacional Nelson Piquet",
     "Autodromo Internazionale del Mugello",
     "Autodromo Internazionale Enzo e Dino Ferrari",
-    "Autódromo José Carlos Pace",
+    "Autodromo Jose Carlos Pace",
     "Autodromo Nazionale di Monza",
-    "Autódromo Oscar y Juan Gálvez",
+    "Autodromo Oscar y Juan Galvez",
     "AVUS",
     "Bahrain International Circuit",
     "Baku City Circuit",
@@ -223,10 +223,10 @@ circuit_name_provider = DynamicProvider(
     "Madring",
     "Marina Bay Street Circuit",
     "Miami International Autodrome",
-    "Montjuïc Circuit",
+    "Montjuic Circuit",
     "Mosport Park",
     "Nivelles-Baulers",
-    "Nürburgring",
+    "Nurburgring",
     "Pescara Circuit",
     "Phoenix Street Circuit",
     "Prince George Circuit",
@@ -384,12 +384,12 @@ def generate_data(base_data_amount, other_data_amount, file_name):
     gp_circuit_ids = generate_bag(gp_count, [circuit[0] for circuit in circuit_tuples])
     circ_country_ids = [circuit_country_ids[gp_circuit_ids[i]-1] for i in range(gp_count)]
     circ_countries = [countries[country_id-1] for country_id in circ_country_ids]
+    gp_season_ids = generate_bag(gp_count, [season[0] for season in season_tuples])
+    gp_season_years = [season_years[n-1] for n in gp_season_ids]
     gp_names = [
         f"{circ_countries[i]} Grand Prix {gp_season_years[i]}"
         for i in range(gp_count)
     ]
-    gp_season_ids = generate_bag(gp_count, [season[0] for season in season_tuples])
-    gp_season_years = [season_years[n-1] for n in gp_season_ids]
     gp_dates = [str(yyyy) + '-' + fake.date(pattern='%m-%d') for yyyy in gp_season_years]
     gp_tuples = [(i + 1, gp_names[i], gp_dates[i], gp_season_ids[i], gp_circuit_ids[i]) for i in range(gp_count)]
     gp_dict = {id : (n, d, sid, cid) for (id, n, d, sid, cid) in gp_tuples}
@@ -530,7 +530,7 @@ def generate_data(base_data_amount, other_data_amount, file_name):
 
     # -$ Berpartisipasi_di Generation
     points_arr = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1] 
-    players_per_race = 22
+    players_per_race = min(22, racer_count)
     participation_count = gp_count * players_per_race
     participant_ids = []
     participation_gp_ids = []
@@ -640,7 +640,9 @@ def generate_data(base_data_amount, other_data_amount, file_name):
         "DROP TABLE IF EXISTS Negara;\n\n"
     ])
 
+    lines.append("SET NAMES utf8mb4;\n\n")
     lines.extend(generate_create_tables())
+    lines.append("SET autocommit=0;\n\n")
     lines.extend(convert_data_to_table('Negara', countries_tuples))
     lines.extend(convert_data_to_table('Tim', team_tuples))
     lines.extend(convert_data_to_table('Sirkuit', circuit_tuples))
@@ -659,8 +661,9 @@ def generate_data(base_data_amount, other_data_amount, file_name):
     lines.extend(convert_data_to_table('Berpartisipasi_di', participation_tuples))
     lines.extend(convert_data_to_table('Diberi_kepada', awarded_to_tuples))
     lines.extend(convert_data_to_table('Mengawasi', observes_tuples))
-    
-    with open(file_name, 'w') as file:
+    lines.append("COMMIT;")
+
+    with open(file_name, 'w', encoding='utf-8') as file:
         file.truncate(0); file.seek(0)
         for line in lines:
             file.write(line)
@@ -859,10 +862,7 @@ def generate_create_tables():
     ]
 
 def convert_data_to_table(table_name, data):
-    lines = [
-        "SET autocommit=0;\n",
-        f"INSERT INTO `{table_name}` VALUES\n",
-    ]
+    lines = [f"INSERT INTO `{table_name}` VALUES\n",]
 
     for d in data:
         lines.append(f"{tuple_to_sql(d)},\n")
@@ -870,7 +870,8 @@ def convert_data_to_table(table_name, data):
     if len(data) > 0:
         lines[-1] = f"{lines[-1][:-2]};\n"
 
-    lines.append("COMMIT;\n\n")
+    lines.append("\n")
+
     return lines
 
 def generate_bag(n, values, do_shuffle=True):
