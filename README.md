@@ -59,7 +59,7 @@ Database **FormulaNone** mencakup tabel-tabel berikut:
    - Password: `Tubes`
    - Port: `3307`
 
-## 🔌 Akses Database
+## Akses Database
 
 ### Via MySQL Client
 ```bash
