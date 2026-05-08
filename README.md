@@ -1,7 +1,7 @@
 # Tubes-Basis-Data
 
 ## Deskripsi
-Basis Data Tubez (Tugas Besar) untuk mata kuliah Basis Data ITB. Database ini mengimplementasikan sistem manajemen Formula 1 dengan schema lengkap mencakup data negara, tim, pembalap, grand prix, dan berbagai relasi kompleks.
+Database ini mengimplementasikan sistem manajemen Formula 1 dengan schema lengkap mencakup data negara, tim, pembalap, grand prix, dan berbagai relasi yang terjalin.
 
 ## Struktur Database
 Database **FormulaNone** mencakup tabel-tabel berikut:
@@ -88,4 +88,4 @@ docker-compose down -v
 ## Catatan
 - Data akan persistent tersimpan di volume `mariadb_data`
 - Container akan auto-restart jika crash (unless-stopped)
-- Setiap kali container start, schema dan data awal akan di-load otomatis dari `init/FormulaNone.sql`
+- Setiap kali container start, schema dan data awal akan di-load otomatis dari `db/FormulaNone.sql`
